@@ -24,7 +24,7 @@ func _physics_process(delta: float) -> void:
 		_facing = input.normalized()
 	move_and_slide()
 
-	position = GameManager.clamp_to_island(position, 20.0)
+	position = GameManager.clamp_to_archipelago(position, 20.0)
 
 	_bob_time += delta * (8.0 if is_running else 5.0)
 	var bob_offset := sin(_bob_time) * 2.0 if velocity.length() > 1.0 else 0.0

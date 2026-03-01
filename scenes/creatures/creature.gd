@@ -50,7 +50,7 @@ func _physics_process(delta: float) -> void:
 		Enums.CreatureState.REST:
 			_process_rest(delta)
 
-	position = GameManager.clamp_to_island(position, 30.0)
+	position = GameManager.clamp_to_archipelago(position, 30.0)
 
 	var bob := sin(_bob_time) * 1.5 if velocity.length() > 1.0 else 0.0
 	if has_node("Visual"):
@@ -109,7 +109,7 @@ func _change_state(new_state: int) -> void:
 			var angle := randf() * TAU
 			var dist := randf_range(20.0, WANDER_RADIUS)
 			_target_pos = _wander_origin + Vector2(cos(angle) * dist, sin(angle) * dist * Enums.ISO_RATIO)
-			_target_pos = GameManager.clamp_to_island(_target_pos, 40.0)
+			_target_pos = GameManager.clamp_to_archipelago(_target_pos, 40.0)
 		Enums.CreatureState.WORK:
 			_state_timer = randf_range(4.0, 8.0)
 		Enums.CreatureState.REST:

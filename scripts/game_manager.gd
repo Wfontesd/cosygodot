@@ -24,21 +24,54 @@ const MAX_EGGS := 8
 const ISLAND_RADIUS := 350.0
 const ISLAND_RATIO := 0.5
 
+var _archipelago_gen: RefCounted = null
+
+func set_archipelago_generator(gen: RefCounted) -> void:
+	_archipelago_gen = gen
+
 static func is_on_island(pos: Vector2) -> bool:
 	var rx := ISLAND_RADIUS
 	var ry := ISLAND_RADIUS * ISLAND_RATIO
 	return (pos.x * pos.x) / (rx * rx) + (pos.y * pos.y) / (ry * ry) <= 1.0
 
 static func clamp_to_island(pos: Vector2, margin: float = 10.0) -> Vector2:
-	var rx := ISLAND_RADIUS - margin
-	var ry := (ISLAND_RADIUS - margin) * ISLAND_RATIO
-	var nx := pos.x / maxf(rx, 1.0)
-	var ny := pos.y / maxf(ry, 1.0)
-	var d := nx * nx + ny * ny
-	if d > 1.0:
-		var scale := 1.0 / sqrt(d)
-		return Vector2(nx * scale * rx, ny * scale * ry)
 	return pos
+
+func clamp_to_archipelago(pos: Vector2, margin: float = 10.0) -> Vector2:
+	if not _archipelago_gen:
+		return pos
+	var gen = _archipelago_gen
+	var best_island = null
+	var best_dist := INF
+	for island in gen.islands:
+		var ip: Vector2 = island.world_pos + Vector2(0, island.height)
+		var d := pos.distance_to(ip)
+		if d < island.radius + 40.0:
+			return pos
+		if d < best_dist:
+			best_dist = d
+			best_island = island
+
+	# Check if on any bridge
+	for bridge in gen.bridges:
+		for i in range(bridge.path_points.size() - 1):
+			var seg_dist := _point_to_segment_dist(pos, bridge.path_points[i], bridge.path_points[i + 1])
+			if seg_dist < 20.0:
+				return pos
+
+	# Not on island or bridge — clamp to nearest island edge
+	if best_island:
+		var ip: Vector2 = best_island.world_pos + Vector2(0, best_island.height)
+		var dir := (pos - ip).normalized()
+		return ip + dir * (best_island.radius + 30.0)
+	return pos
+
+func _point_to_segment_dist(p: Vector2, a: Vector2, b: Vector2) -> float:
+	var ab := b - a
+	var ap := p - a
+	var t := clampf(ap.dot(ab) / maxf(ab.dot(ab), 0.001), 0.0, 1.0)
+	var closest := a + ab * t
+	return p.distance_to(closest)
 
 func _ready() -> void:
 	_setup_inputs()
