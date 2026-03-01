@@ -397,11 +397,22 @@ func _refresh_radial_menu(creature) -> void:
 	var sep := HSeparator.new()
 	_radial_content.add_child(sep)
 
-	var nearby := GameManager.get_nearby_buildings(creature.global_position, 200.0)
+	if creature.assigned_building and is_instance_valid(creature.assigned_building):
+		var ab = creature.assigned_building
+		var ab_icon = Enums.BUILDING_ICONS.get(ab.building_type, "")
+		var ab_name = Enums.BUILDING_NAMES.get(ab.building_type, "?")
+		var assigned_label := Label.new()
+		assigned_label.text = "Assigné : " + str(ab_icon) + " " + str(ab_name)
+		assigned_label.add_theme_font_size_override("font_size", 10)
+		assigned_label.add_theme_color_override("font_color", Color(0.6, 0.9, 0.6))
+		_radial_content.add_child(assigned_label)
+
+	var all_buildings := GameManager.buildings
 	var options: Array = []
-	for b in nearby:
+	for b in all_buildings:
 		if not b.is_full() and b.building_type != Enums.BuildingType.INCUBATOR:
-			options.append(b)
+			if b != creature.assigned_building:
+				options.append(b)
 
 	if options.is_empty():
 		var no_opt := Label.new()

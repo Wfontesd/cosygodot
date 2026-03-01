@@ -24,6 +24,8 @@ func _physics_process(delta: float) -> void:
 		_facing = input.normalized()
 	move_and_slide()
 
+	position = GameManager.clamp_to_island(position, 20.0)
+
 	_bob_time += delta * (8.0 if is_running else 5.0)
 	var bob_offset := sin(_bob_time) * 2.0 if velocity.length() > 1.0 else 0.0
 	$Visual.position.y = bob_offset
@@ -55,16 +57,20 @@ func _build_interaction_area() -> void:
 
 func _update_interaction_target() -> void:
 	var area: Area2D = $InteractionArea
-	var best = null
-	var best_dist := 9999.0
+	var best_body = null
+	var best_body_dist := 9999.0
+	var best_area_target = null
+	var best_area_dist := 9999.0
 
 	for body in area.get_overlapping_bodies():
 		if body == self:
 			continue
+		if not body.has_method("get_interaction_type"):
+			continue
 		var d := global_position.distance_to(body.global_position)
-		if d < best_dist:
-			best_dist = d
-			best = body
+		if d < best_body_dist:
+			best_body_dist = d
+			best_body = body
 
 	for a in area.get_overlapping_areas():
 		var target_node = a
@@ -75,9 +81,11 @@ func _update_interaction_target() -> void:
 		if not target_node.has_method("get_interaction_type"):
 			continue
 		var d := global_position.distance_to(target_node.global_position)
-		if d < best_dist:
-			best_dist = d
-			best = target_node
+		if d < best_area_dist:
+			best_area_dist = d
+			best_area_target = target_node
+
+	var best = best_body if best_body else best_area_target
 
 	if best != current_target:
 		current_target = best
@@ -128,4 +136,3 @@ func _process(_d):
 """
 	s.reload()
 	return s
-

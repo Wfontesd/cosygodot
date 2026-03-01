@@ -22,6 +22,23 @@ var _egg_spawn_timer := 0.0
 const EGG_SPAWN_INTERVAL := 12.0
 const MAX_EGGS := 8
 const ISLAND_RADIUS := 350.0
+const ISLAND_RATIO := 0.5
+
+static func is_on_island(pos: Vector2) -> bool:
+	var rx := ISLAND_RADIUS
+	var ry := ISLAND_RADIUS * ISLAND_RATIO
+	return (pos.x * pos.x) / (rx * rx) + (pos.y * pos.y) / (ry * ry) <= 1.0
+
+static func clamp_to_island(pos: Vector2, margin: float = 10.0) -> Vector2:
+	var rx := ISLAND_RADIUS - margin
+	var ry := (ISLAND_RADIUS - margin) * ISLAND_RATIO
+	var nx := pos.x / maxf(rx, 1.0)
+	var ny := pos.y / maxf(ry, 1.0)
+	var d := nx * nx + ny * ny
+	if d > 1.0:
+		var scale := 1.0 / sqrt(d)
+		return Vector2(nx * scale * rx, ny * scale * ry)
+	return pos
 
 func _ready() -> void:
 	_setup_inputs()
