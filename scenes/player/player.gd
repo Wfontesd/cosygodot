@@ -112,24 +112,51 @@ func _create_player_draw_script() -> GDScript:
 
 func _draw():
 	# Shadow
-	draw_circle(Vector2(0, 11), 14.0, Color(0, 0, 0, 0.15))
-	# Body (isometric diamond)
+	draw_circle(Vector2(0, 12), 16.0, Color(0, 0, 0, 0.12))
+	# Body
 	var body := PackedVector2Array([
-		Vector2(0, -16), Vector2(12, -2), Vector2(0, 12), Vector2(-12, -2)
+		Vector2(0, -14), Vector2(13, -1), Vector2(10, 10),
+		Vector2(0, 14), Vector2(-10, 10), Vector2(-13, -1)
 	])
-	draw_colored_polygon(body, Color(0.95, 0.88, 0.75))
-	draw_polyline(body + PackedVector2Array([body[0]]), Color(0.6, 0.5, 0.4), 1.5)
+	draw_colored_polygon(body, Color(0.92, 0.82, 0.68))
+	draw_polyline(body + PackedVector2Array([body[0]]), Color(0.65, 0.52, 0.40), 1.8)
+	# Shirt/tunic detail
+	var tunic := PackedVector2Array([
+		Vector2(-10, 2), Vector2(10, 2), Vector2(8, 10),
+		Vector2(0, 14), Vector2(-8, 10)
+	])
+	draw_colored_polygon(tunic, Color(0.55, 0.72, 0.55))
+	draw_polyline(tunic + PackedVector2Array([tunic[0]]), Color(0.40, 0.55, 0.40), 1.0)
+	# Belt
+	draw_line(Vector2(-10, 2), Vector2(10, 2), Color(0.50, 0.38, 0.25), 2.0)
 	# Head
-	draw_circle(Vector2(0, -22), 8.0, Color(0.98, 0.92, 0.82))
-	draw_arc(Vector2(0, -22), 8.0, 0, TAU, 24, Color(0.6, 0.5, 0.4), 1.5)
+	draw_circle(Vector2(0, -21), 10.0, Color(0.95, 0.88, 0.78))
+	draw_arc(Vector2(0, -21), 10.0, 0, TAU, 24, Color(0.65, 0.52, 0.40), 1.5)
+	# Hair
+	var hair := PackedVector2Array([
+		Vector2(-9, -23), Vector2(-7, -32), Vector2(0, -34),
+		Vector2(7, -32), Vector2(9, -23)
+	])
+	draw_colored_polygon(hair, Color(0.50, 0.35, 0.22))
 	# Eyes
-	draw_circle(Vector2(-3, -23), 1.5, Color(0.25, 0.2, 0.15))
-	draw_circle(Vector2(3, -23), 1.5, Color(0.25, 0.2, 0.15))
-	# Held egg indicator
+	draw_circle(Vector2(-3.5, -22), 2.0, Color.WHITE)
+	draw_circle(Vector2(3.5, -22), 2.0, Color.WHITE)
+	draw_circle(Vector2(-3.5, -22), 1.0, Color(0.20, 0.15, 0.10))
+	draw_circle(Vector2(3.5, -22), 1.0, Color(0.20, 0.15, 0.10))
+	# Eye shine
+	draw_circle(Vector2(-4.0, -23), 0.6, Color(1, 1, 1, 0.8))
+	draw_circle(Vector2(3.0, -23), 0.6, Color(1, 1, 1, 0.8))
+	# Blush
+	draw_circle(Vector2(-6, -19), 2.5, Color(0.95, 0.70, 0.65, 0.35))
+	draw_circle(Vector2(6, -19), 2.5, Color(0.95, 0.70, 0.65, 0.35))
+	# Smile
+	draw_arc(Vector2(0, -18.5), 3.0, 0.2, PI - 0.2, 8, Color(0.50, 0.35, 0.25), 1.2)
+	# Held egg
 	if GameManager.held_egg_element >= 0:
 		var c: Color = Enums.ELEMENT_COLORS[GameManager.held_egg_element]
-		draw_circle(Vector2(14, -10), 6.0, c)
-		draw_arc(Vector2(14, -10), 6.0, 0, TAU, 12, c.darkened(0.3), 1.5)
+		draw_circle(Vector2(15, -8), 7.0, c)
+		draw_circle(Vector2(14, -10), 2.5, c.lightened(0.3))
+		draw_arc(Vector2(15, -8), 7.0, 0, TAU, 12, c.darkened(0.2), 1.5)
 
 func _process(_d):
 	queue_redraw()

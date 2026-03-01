@@ -42,20 +42,33 @@ func _draw():
 	if not egg_ref or not is_instance_valid(egg_ref):
 		return
 	var col: Color = Enums.ELEMENT_COLORS.get(egg_ref.element, Color.WHITE)
+	var t := Time.get_ticks_msec() * 0.003
+	var pulse := (sin(t) + 1.0) * 0.15
+	# Glow aura
+	draw_circle(Vector2(0, -2), 16.0 + pulse * 5.0, Color(col.r, col.g, col.b, 0.12 + pulse * 0.1))
+	draw_circle(Vector2(0, -2), 12.0, Color(col.r, col.g, col.b, 0.08))
 	# Shadow
-	draw_circle(Vector2(0, 8), 6.0, Color(0, 0, 0, 0.12))
-	# Egg shape (ellipse via polygon)
+	draw_circle(Vector2(0, 10), 8.0, Color(0, 0, 0, 0.12))
+	# Egg shape
 	var points := PackedVector2Array()
-	for i in 16:
-		var a: float = i * TAU / 16.0
-		points.append(Vector2(cos(a) * 7.0, sin(a) * 10.0 - 2.0))
+	for i in 24:
+		var a: float = i * TAU / 24.0
+		var rx := 8.0
+		var ry := 11.0
+		var squash: float = 1.0 + 0.15 * maxf(0.0, -sin(a))
+		points.append(Vector2(cos(a) * rx, sin(a) * ry * squash - 2.0))
 	draw_colored_polygon(points, col)
-	draw_polyline(points + PackedVector2Array([points[0]]), col.darkened(0.25), 1.5)
-	# Shine
-	draw_circle(Vector2(-2, -5), 2.0, col.lightened(0.4))
-	# Element symbol
+	draw_polyline(points + PackedVector2Array([points[0]]), col.darkened(0.20), 1.8)
+	# Highlight
+	draw_circle(Vector2(-3, -7), 3.0, col.lightened(0.35))
+	draw_circle(Vector2(-2, -5), 1.5, Color(1, 1, 1, 0.45))
+	# Pattern dots
+	for i in 3:
+		var dx := -3.0 + i * 3.0
+		draw_circle(Vector2(dx, 2), 1.2, col.darkened(0.15))
+	# Element icon
 	var icon: String = Enums.ELEMENT_ICONS.get(egg_ref.element, "?")
-	draw_string(ThemeDB.fallback_font, Vector2(-5, 3), icon, HORIZONTAL_ALIGNMENT_LEFT, -1, 10)
+	draw_string(ThemeDB.fallback_font, Vector2(-5, 5), icon, HORIZONTAL_ALIGNMENT_LEFT, -1, 10)
 
 func _process(_d):
 	queue_redraw()
